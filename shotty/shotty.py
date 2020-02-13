@@ -134,6 +134,26 @@ def list_instances(project):
 
     return
 
+@instances.command('reboot')
+@click.option('--project', default=None,
+    help='Only instances for project')
+@click.option('--force', 'enforcer', default=False, is_flag=True,
+    help="Forces reboot if project isn't set")
+@click.option('--instance','my_id', default=None,
+    help="Only the specified id")
+def reboot_instances(project, enforcer, my_id):
+    "Reboot EC2 instances"
+
+    instances = filter_instances(project, enforcer, my_id)
+
+    for i in instances:
+        print ("Rebooting {0}".format(i.id))
+        try:
+            i.reboot()
+        except botocore.exceptions.ClientError as e:
+            print(" Could not reboot {0}: {1}".format(i.id, str(e)))
+            continue
+
 @instances.command('stop')
 @click.option('--project', default=None,
     help='Only instances for project')
